@@ -14,8 +14,9 @@ extra-source-files:
 - templates/*
 
 default-extensions:
-- OverloadedStrings
+- DataKinds
 - NoImplicitPrelude
+- OverloadedStrings
 
 dependencies:
 - classy-prelude
@@ -34,6 +35,7 @@ library:
   - Data.Taskell.List.Internal
   - Data.Taskell.Lists
   - Data.Taskell.Lists.Internal
+  - Data.Taskell.Repo.Internal
   - Data.Taskell.Seq
   - Data.Taskell.Subtask
   - Data.Taskell.Subtask.Internal
@@ -45,8 +47,6 @@ library:
   - IO.Config.Markdown
   - IO.Markdown.Internal
   - IO.HTTP.GitHub
-  - IO.HTTP.Trello.List
-  - IO.HTTP.Trello.ChecklistItem
   - IO.Keyboard
   - IO.Keyboard.Parser
   - IO.Keyboard.Types

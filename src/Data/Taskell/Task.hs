@@ -24,3 +24,4 @@ module Data.Taskell.Task
     ) where
 
 import Data.Taskell.Task.Internal
+import Data.Taskell.Repo.Internal

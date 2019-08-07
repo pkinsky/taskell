@@ -16,6 +16,7 @@ import Brick
 import           Data.Taskell.Date         (Day, dayToOutput, deadline)
 import qualified Data.Taskell.Subtask      as ST (Subtask, complete, name)
 import           Data.Taskell.Task         (Task, description, due, name, subtasks)
+import           Data.Taskell.Repo         (tSubtask, Taskell, TaskellKind(..))
 import           Events.State              (getCurrentTask)
 import           Events.State.Modal.Detail (getCurrentItem, getField)
 import           Events.State.Types        (State)
@@ -25,14 +26,14 @@ import           UI.Theme                  (disabledAttr, dlToAttr, taskCurrentA
                                             titleCurrentAttr)
 import           UI.Types                  (ResourceName (..))
 
-renderSubtask :: Maybe Field -> DetailItem -> Int -> ST.Subtask -> Widget ResourceName
+renderSubtask :: Maybe Field -> DetailItem -> Int -> Taskell 'SubtaskType -> Widget ResourceName
 renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
   where
     cur =
         case current of
             DetailItem c -> i == c
             _            -> False
-    done = subtask ^. ST.complete
+    done = subtask ^. tSubtask . ST.complete
     attr =
         withAttr
             (if cur
@@ -43,7 +44,7 @@ renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
         if done
             then "[x] "
             else "[ ] "
-    widget = textField (subtask ^. ST.name)
+    widget = textField (subtask ^. tSubtask . ST.name)
     final
         | cur = visible . attr $ widgetFromMaybe widget f
         | not done = attr widget

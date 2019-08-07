@@ -4,6 +4,7 @@ module Data.Taskell.Subtask
     ( Subtask
     , Update
     , new
+    , new'
     , blank
     , name
     , complete
@@ -11,3 +12,4 @@ module Data.Taskell.Subtask
     ) where
 
 import Data.Taskell.Subtask.Internal
+import Data.Taskell.Repo.Internal

@@ -26,13 +26,11 @@ import qualified IO.Config.General  as General
 import qualified IO.Config.GitHub   as GitHub
 import qualified IO.Config.Layout   as Layout
 import qualified IO.Config.Markdown as Markdown
-import qualified IO.Config.Trello   as Trello
 
 data Config = Config
     { general  :: General.Config
     , layout   :: Layout.Config
     , markdown :: Markdown.Config
-    , trello   :: Trello.Config
     , github   :: GitHub.Config
     }
 
@@ -42,7 +40,6 @@ defaultConfig =
         General.defaultConfig
         Layout.defaultConfig
         Markdown.defaultConfig
-        Trello.defaultConfig
         GitHub.defaultConfig
 
 directoryName :: FilePath
@@ -88,8 +85,7 @@ create path contents = doesFileExist path >>= flip unless (writeFile path conten
 
 configParser :: IniParser Config
 configParser =
-    Config <$> General.parser <*> Layout.parser <*> Markdown.parser <*> Trello.parser <*>
-    GitHub.parser
+    Config <$> General.parser <*> Layout.parser <*> Markdown.parser <*> GitHub.parser
 
 getConfig :: IO Config
 getConfig = do

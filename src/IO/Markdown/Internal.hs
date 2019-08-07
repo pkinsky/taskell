@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DataKinds #-}
 
 module IO.Markdown.Internal where
 
@@ -17,6 +18,7 @@ import           Data.Taskell.Lists   (Lists, appendToLast, newList)
 import qualified Data.Taskell.Subtask as ST (Subtask, complete, name, new)
 import qualified Data.Taskell.Task    as T (Task, addSubtask, appendDescription, description, due,
                                             name, new, setDue, subtasks)
+import           Data.Taskell.Repo (tSubtask, Taskell, TaskellKind(..))
 
 import qualified IO.Config          as C (Config, markdown)
 import           IO.Config.Markdown (Config, descriptionOutput, dueOutput, subtaskOutput,
@@ -94,12 +96,12 @@ parse config s = do
         else Left $ "could not parse line(s) " <> intercalate ", " (tshow <$> errs)
 
 -- stringify code
-subtaskStringify :: Config -> Text -> ST.Subtask -> Text
+subtaskStringify :: Config -> Text -> Taskell 'SubtaskType -> Text
 subtaskStringify config t st =
-    foldl' (<>) t [subtaskOutput config, " ", pre, " ", st ^. ST.name, "\n"]
+    foldl' (<>) t [subtaskOutput config, " ", pre, " ", st ^. tSubtask . ST.name, "\n"]
   where
     pre =
-        if st ^. ST.complete
+        if st ^. tSubtask . ST.complete
             then "[x]"
             else "[ ]"
 

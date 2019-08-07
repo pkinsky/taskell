@@ -14,8 +14,9 @@ import Test.Tasty.HUnit
 
 import Data.Time (fromGregorianValid)
 
-import qualified Data.Taskell.Subtask       as ST (name, new)
+import qualified Data.Taskell.Subtask       as ST (name, new, new')
 import           Data.Taskell.Task.Internal
+import Data.Taskell.Repo.Internal
 
 desc :: Maybe Text
 desc = Just "A very boring description"
@@ -23,10 +24,10 @@ desc = Just "A very boring description"
 testTask :: Task
 testTask =
     Task
-    { _name = "Test"
-    , _description = desc
-    , _subtasks = fromList [ST.new "One" True, ST.new "Two" False, ST.new "Three" False]
-    , _due = Nothing
+    { _task'Name = "Test"
+    , _task'Description = desc
+    , _task'Subtasks = fromList [ST.new' "One" True, ST.new' "Two" False, ST.new' "Three" False]
+    , _task'Due = Nothing
     }
 
 -- tests
@@ -81,10 +82,10 @@ test_task =
                               "Test"
                               desc
                               (fromList
-                                   [ ST.new "One" True
-                                   , ST.new "Two" False
-                                   , ST.new "Three" False
-                                   , ST.new "Four" True
+                                   [ ST.new' "One" True
+                                   , ST.new' "Two" False
+                                   , ST.new' "Three" False
+                                   , ST.new' "Four" True
                                    ])
                               Nothing)
                          (addSubtask (ST.new "Four" True) testTask))
@@ -92,7 +93,7 @@ test_task =
                     "empty sub-tasks"
                     (assertEqual
                          "Returns the task with added subtask"
-                         (Task "Test" Nothing (fromList [ST.new "One" False]) Nothing)
+                         (Task "Test" Nothing (fromList [ST.new' "One" False]) Nothing)
                          (addSubtask (ST.new "One" False) (new "Test")))
               ]
         , testGroup
@@ -112,7 +113,7 @@ test_task =
                               "Test"
                               desc
                               (fromList
-                                   [ST.new "One" True, ST.new "Cow" False, ST.new "Three" False])
+                                   [ST.new' "One" True, ST.new' "Cow" False, ST.new' "Three" False])
                               Nothing)
                          (updateSubtask 1 (ST.name .~ "Cow") testTask))
               , testCase
@@ -123,7 +124,7 @@ test_task =
                               "Test"
                               desc
                               (fromList
-                                   [ST.new "One" True, ST.new "Two" False, ST.new "Three" False])
+                                   [ST.new' "One" True, ST.new' "Two" False, ST.new' "Three" False])
                               Nothing)
                          (updateSubtask 10 (ST.name .~ "Cow") testTask))
               ]
@@ -136,7 +137,7 @@ test_task =
                          (Task
                               "Test"
                               desc
-                              (fromList [ST.new "One" True, ST.new "Three" False])
+                              (fromList [ST.new' "One" True, ST.new' "Three" False])
                               Nothing)
                          (removeSubtask 1 testTask))
               , testCase
@@ -147,7 +148,7 @@ test_task =
                               "Test"
                               desc
                               (fromList
-                                   [ST.new "One" True, ST.new "Two" False, ST.new "Three" False])
+                                   [ST.new' "One" True, ST.new' "Two" False, ST.new' "Three" False])
                               Nothing)
                          (removeSubtask 10 testTask))
               ]
@@ -190,7 +191,7 @@ test_task =
                     (assertEqual
                          "Returns False"
                          False
-                         (isBlank (Task "" Nothing (fromList [ST.new "One" True]) Nothing)))
+                         (isBlank (Task "" Nothing (fromList [ST.new' "One" True]) Nothing)))
               , testCase
                     "due date not blank"
                     (assertEqual

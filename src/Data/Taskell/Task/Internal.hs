@@ -6,24 +6,16 @@ module Data.Taskell.Task.Internal where
 
 import ClassyPrelude
 
-import Control.Lens (ix, makeLenses, (%~), (&), (.~), (^.), (^?))
+import Control.Lens (ix, makeLenses, (%~), (&), (.~), (^.), (^?), over)
 
 import           Data.Sequence        as S (adjust', deleteAt, (|>))
 import           Data.Taskell.Date    (Day, textToDay)
-import qualified Data.Taskell.Subtask as ST (Subtask, Update, complete, name)
+import           Data.Taskell.Repo.Internal
+import qualified Data.Taskell.Subtask as ST
 import           Data.Text            (strip)
-
-data Task = Task
-    { _name        :: Text
-    , _description :: Maybe Text
-    , _subtasks    :: Seq ST.Subtask
-    , _due         :: Maybe Day
-    } deriving (Show, Eq)
 
 type Update = Task -> Task
 
--- create lenses
-$(makeLenses ''Task)
 
 -- operations
 blank :: Task
@@ -58,16 +50,16 @@ setDue date task =
                  Nothing  -> task
 
 getSubtask :: Int -> Task -> Maybe ST.Subtask
-getSubtask idx = (^? subtasks . ix idx)
+getSubtask idx = (^? subtasks . ix idx . tSubtask)
 
 addSubtask :: ST.Subtask -> Update
-addSubtask subtask = subtasks %~ (|> subtask)
+addSubtask subtask = subtasks %~ (|> SubtaskE (Identity subtask))
 
 hasSubtasks :: Task -> Bool
 hasSubtasks = not . null . (^. subtasks)
 
 updateSubtask :: Int -> ST.Update -> Update
-updateSubtask idx fn = subtasks %~ adjust' fn idx
+updateSubtask idx fn = subtasks %~ adjust' (tSubtask %~ fn) idx
 
 removeSubtask :: Int -> Update
 removeSubtask idx = subtasks %~ S.deleteAt idx
@@ -76,14 +68,14 @@ countSubtasks :: Task -> Int
 countSubtasks = length . (^. subtasks)
 
 countCompleteSubtasks :: Task -> Int
-countCompleteSubtasks = length . filter (^. ST.complete) . (^. subtasks)
+countCompleteSubtasks = length . filter (^. tSubtask . ST.complete) . (^. subtasks)
 
 contains :: Text -> Task -> Bool
 contains text task =
     check (task ^. name) || maybe False check (task ^. description) || not (null sts)
   where
     check = isInfixOf (toLower text) . toLower
-    sts = filter check $ (^. ST.name) <$> (task ^. subtasks)
+    sts = filter check $ (^. tSubtask . ST.name) <$> (task ^. subtasks)
 
 isBlank :: Task -> Bool
 isBlank task =

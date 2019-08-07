@@ -12,15 +12,13 @@ import System.Directory (doesFileExist, getCurrentDirectory)
 import Config             (usage, version)
 import Data.Taskell.Lists (Lists, analyse, initial)
 
-import           IO.Config         (Config, general, github, trello)
+import           IO.Config         (Config, general, github)
 import           IO.Config.General (filename)
 import qualified IO.Config.GitHub  as GitHub (token)
-import qualified IO.Config.Trello  as Trello (token)
 
 import IO.Markdown (parse, stringify)
 
 import qualified IO.HTTP.GitHub as GitHub (GitHubIdentifier, getLists)
-import qualified IO.HTTP.Trello as Trello (TrelloBoardID, getLists)
 
 import UI.CLI (PromptYN (PromptYes), promptYN)
 
@@ -35,7 +33,6 @@ data Next
 parseArgs :: [Text] -> ReaderConfig Next
 parseArgs ["-v"]                   = pure $ Output version
 parseArgs ["-h"]                   = pure $ Output usage
-parseArgs ["-t", boardID, file]    = loadTrello boardID file
 parseArgs ["-g", identifier, file] = loadGitHub identifier file
 parseArgs ["-i", file]             = fileInfo file
 parseArgs [file]                   = loadFile file
@@ -62,9 +59,6 @@ loadRemote createFn identifier filepath = do
     if exists'
         then pure $ Output (filepath <> " already exists")
         else createFn identifier path
-
-loadTrello :: Trello.TrelloBoardID -> Text -> ReaderConfig Next
-loadTrello = loadRemote createTrello
 
 loadGitHub :: GitHub.GitHubIdentifier -> Text -> ReaderConfig Next
 loadGitHub = loadRemote createGitHub
@@ -95,13 +89,6 @@ createRemote tokenFn missingToken getFn identifier path = do
                 Right ls ->
                     promptCreate path >>=
                     bool (pure Exit) (Load path ls <$ lift (writeData config ls path))
-
-createTrello :: Trello.TrelloBoardID -> FilePath -> ReaderConfig Next
-createTrello =
-    createRemote
-        (Trello.token . trello)
-        (decodeUtf8 $(embedFile "templates/trello-token.txt"))
-        Trello.getLists
 
 createGitHub :: GitHub.GitHubIdentifier -> FilePath -> ReaderConfig Next
 createGitHub =

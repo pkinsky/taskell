@@ -11,6 +11,7 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import Data.Taskell.Subtask.Internal
+import Data.Taskell.Repo.Internal
 
 -- tests
 test_subtask :: TestTree
