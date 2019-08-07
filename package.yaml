@@ -68,6 +68,7 @@ library:
   - http-types
   - lens
   - mtl
+  - merkle-schemes-higher
   - template-haskell
   - text
   - time

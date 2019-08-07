@@ -29,25 +29,42 @@ data TaskellKind = RepoType | ListType | TaskType | SubtaskType
 
 
 -- | 'f' represents indirection - could be Const Hashpointer, 'm' for some monad, etc
-data Taskell' f (i :: TaskellKind) where
-  RepoE    :: f (Repo' f) -> Taskell' f 'RepoType -- can later add arbitrary top-level info/etc here
-  ListE    :: f (List' f) -> Taskell' f 'ListType
-  TaskE    :: f (Task' f) -> Taskell' f 'TaskType
+data Taskell' a (i :: TaskellKind) where
+  RepoE    :: Repo' a -> Taskell' a 'RepoType -- can later add arbitrary top-level info/etc here
+  ListE    :: List' a -> Taskell' a 'ListType
+  TaskE    :: Task' a -> Taskell' a 'TaskType
   -- TODO: add option here, specifically:
   -- TODO:  - inline images! can use some img -> ascii to render, or open in external
   -- TODO:  - opens up some awesome options
-  SubtaskE :: f Subtask   -> Taskell' f 'SubtaskType
+  -- NOTE: could have file trees inline -- probably just as hash pointers
+  SubtaskE :: Subtask -> Taskell' a 'SubtaskType
 
 type Taskell = Taskell' Identity
 deriving instance Eq (Taskell' Identity i)
 deriving instance Show (Taskell' Identity i)
 
+-- type Hash = Int -- todo idk cryptonite or w/e
+-- type WithHashPointer = (,) Hash
+-- type JustHashPointer = Const Hash
 
--- addHashes
---   :: (forall i. Taskell' Identity i -> hash)
---   -> Taskell' Identity i
---   -> Taskell' ((,) hash) i
--- addHashes
+-- addHashesR
+--   :: Taskell' Identity 'RepoType
+--   -> Taskell' WithHashPointer 'RepoType
+-- addHashesR (RepoE (Identity r)) = RepoE (hash, r')
+--   where r' = RepoE $ fmap addHashesL r
+--         hash = hashRepo r
+
+-- hashRepo :: Repo' JustHashPointer -> Hash
+-- hashRepo = undefined
+
+
+-- addHashesL
+--   :: Taskell' Identity 'ListType
+--   -> Taskell' WithHashPointer 'ListType
+-- addHashesL (ListE (Identity l)) = undefined
+
+
+-- Lenses for GADT
 
 tRepo :: Lens' (Taskell 'RepoType) Repo
 tRepo = lens (\(RepoE (Identity r)) -> r) (\_ r' -> RepoE $ Identity r')
